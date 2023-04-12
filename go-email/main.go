@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -15,12 +16,31 @@ func main() {
 	fmt.Printf("domain, hasMX, hasSPF, sprRecord, hasDMARC, dmarcRecord\n")
 
 	for scanner.Scan() {
-		checkDomain(scanner.Text())
+		email := scanner.Text()
+		if isValidEmail(email) {
+			fmt.Println("Email address is valid!")
+			croppedEmail := cropEmail(email)
+			checkDomain(croppedEmail)
+		} else {
+			fmt.Println("Email address is invalid!")
+		}
+
 	}
 	if err := scanner.Err(); err != nil {
-		log.Fatal("Error: could not read from input: %v\n", err)
+		log.Fatalf("Error: could not read from input: %v\n", err)
 	}
 
+}
+
+func isValidEmail(email string) bool {
+	// Regular expression pattern for validating email address
+	pattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+
+	// Compile the pattern into a regular expression object
+	re := regexp.MustCompile(pattern)
+
+	// Match the email address against the regular expression
+	return re.MatchString(email)
 }
 
 func checkDomain(domain string) {
@@ -64,6 +84,11 @@ func checkDomain(domain string) {
 		}
 	}
 
-	fmt.Printf("%v, %v, %v, %v, %v, %v", domain, hasMX, hasSPF, spfRecord, hasDMARC, dmarcRecord)
+	fmt.Printf("%v, %v, %v, %v, %v, %v\n", domain, hasMX, hasSPF, spfRecord, hasDMARC, dmarcRecord)
 
+}
+
+func cropEmail(email string) string {
+	atIndex := strings.LastIndex(email, "@")
+	return email[atIndex+1:]
 }
