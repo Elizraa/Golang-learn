@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -15,6 +17,7 @@ func Connect() {
 		panic(err)
 	}
 	db = d
+	fmt.Println("Connection opened")
 }
 
 func GetDB() *gorm.DB {
